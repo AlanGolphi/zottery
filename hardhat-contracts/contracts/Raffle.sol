@@ -73,7 +73,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   }
 
   function performUpkeep(bytes calldata) external override {
-    (bool upkeepNeeded, ) = checkUpkeep('');
+    (bool upkeepNeeded, ) = checkUpkeep("");
     if (!upkeepNeeded) {
       revert Raffle__UpkeepNotNeeded(
         address(this).balance,
@@ -107,5 +107,41 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     if (!success) {
       revert Raffle__TransferFailed();
     }
+  }
+
+  function getRaffleState() public view returns (RaffleState) {
+    return s_raffleState;
+  }
+
+  function getNumWords() public pure returns (uint32) {
+    return NUM_WORDS;
+  }
+
+  function getRequestConfirmation() public pure returns (uint16) {
+    return REQUEST_COMFIRMATIONS;
+  }
+
+  function getRecentWinner() public view returns (address) {
+    return s_recentWinner;
+  }
+
+  function getPlayer(uint256 index) public view returns (address) {
+    return s_players[index];
+  }
+
+  function getLastTimeStamp() public view returns (uint256) {
+    return s_lastTimeStamp;
+  }
+
+  function getInterval() public view returns (uint256) {
+    return i_interval;
+  }
+
+  function getEntranceFee() public view returns (uint256) {
+    return i_entranceFee;
+  }
+
+  function getNumberOfPlayers() public view returns (uint256) {
+    return s_players.length;
   }
 }

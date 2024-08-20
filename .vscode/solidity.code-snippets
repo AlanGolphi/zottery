@@ -3,5 +3,10 @@
 		"prefix": "u2",
 		"body": "uint256",
 		"description": "Quickly insert uint256"
+	},
+	"bytes": {
+		"prefix": "by",
+		"body": "bytes",
+		"description": "Quickly insert bytes"
 	}
 }
