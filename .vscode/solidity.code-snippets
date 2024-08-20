@@ -1,0 +1,7 @@
+{
+	"uint256": {
+		"prefix": "u2",
+		"body": "uint256",
+		"description": "Quickly insert uint256"
+	}
+}
