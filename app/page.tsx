@@ -7,7 +7,7 @@ export default function Home() {
     <>
       <ConnectButton />
       <PopUpLocalWallet />
-      <TestReadContract />
+      {/* <TestReadContract /> */}
     </>
   )
 }
