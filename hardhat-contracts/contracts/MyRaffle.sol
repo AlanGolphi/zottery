@@ -9,6 +9,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   error Raffle__SpendMoreToEnterRaffle();
   error Raffle__RaffleNotOpen();
   error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 playerNums, uint256 raffleState);
+  error Raffle__TransferFailed();
 
   enum RaffleState {
     OPEN,
@@ -18,11 +19,11 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   uint256 private immutable i_subscriptionId;
   bytes32 private immutable i_gasLane;
   uint32 private immutable i_callbackGasLimit;
-  uint16 private constant REQUEST_CONFIRMATION = 3;
+  uint16 private constant REQUEST_COMFIRMATIONS = 3;
   uint32 private constant NUM_WORDS = 1;
   uint256 private immutable i_interval;
   uint256 private immutable i_entranceFee;
-  
+
   uint256 private lastTimeStamp;
   uint256 private currentOrder;
   RaffleState private raffleState;
@@ -31,7 +32,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   mapping(uint256 => address payable[]) private orderToPlayers;
 
   event EnterRaffle(uint256 indexed currentOrder, address indexed player);
-  event RequestRaffleWinner(uint256 indexed requestId);
+  event RequestedRaffleWinner(uint256 indexed requestId);
   event WinnerPicked(uint256 indexed currentOrder, address indexed player);
 
   constructor(
@@ -64,14 +65,107 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     emit EnterRaffle(currentOrder, msg.sender);
   }
 
-  function checkUpkeep(
-    bytes calldata checkData
-  ) external returns (bool upkeepNeeded, bytes memory performData) {}
+  function checkUpkeep(bytes memory) public view returns (bool upkeepNeeded, bytes memory) {
+    bool isOpen = raffleState == RaffleState.OPEN;
+    bool timePassed = (block.timestamp - lastTimeStamp) > i_interval;
+    bool hasPlayers = orderToPlayers[currentOrder].length > 0;
+    bool hasBalance = address(this).balance > 0;
+    upkeepNeeded = (isOpen && timePassed && hasPlayers && hasBalance);
 
-  function performUpkeep(bytes calldata performData) external {}
+    return (upkeepNeeded, '');
+  }
 
-  function fulfillRandomWords(
-    uint256 requestId,
-    uint256[] calldata randomWords
-  ) internal override {}
+  function performUpkeep(bytes calldata) external override {
+    (bool upkeepNeeded, ) = checkUpkeep('');
+    if (!upkeepNeeded) {
+      revert Raffle__UpkeepNotNeeded(
+        address(this).balance,
+        orderToPlayers[currentOrder].length,
+        uint256(raffleState)
+      );
+    }
+
+    uint256 requestId = s_vrfCoordinator.requestRandomWords(
+      VRFV2PlusClient.RandomWordsRequest({
+        keyHash: i_gasLane,
+        subId: i_subscriptionId,
+        requestConfirmations: REQUEST_COMFIRMATIONS,
+        callbackGasLimit: i_callbackGasLimit,
+        numWords: NUM_WORDS,
+        extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: false}))
+      })
+    );
+
+    emit RequestedRaffleWinner(requestId);
+  }
+
+  function fulfillRandomWords(uint256, uint256[] calldata randomWords) internal override {
+    address payable[] memory players = orderToPlayers[currentOrder];
+    uint256 winnerIdx = randomWords[0] % players.length;
+    address payable winner = players[winnerIdx];
+    orderToWinnerIdx[currentOrder] = winnerIdx;
+
+    emit WinnerPicked(currentOrder, winner);
+    currentOrder += 1;
+
+    (bool success, ) = payable(winner).call{value: address(this).balance}('');
+    if (!success) {
+      revert Raffle__TransferFailed();
+    }
+  }
+
+  function getCurrentOrder() public view returns (uint256) {
+    return currentOrder;
+  }
+
+  function getRaffleState() public view returns (uint256) {
+    return uint256(raffleState);
+  }
+
+  function getEntranceFee() public view returns (uint256) {
+    return i_entranceFee;
+  }
+
+  function getLastTimeStamp() public view returns (uint256) {
+    return lastTimeStamp;
+  }
+
+  function getInterval() public view returns (uint256) {
+    return i_interval;
+  }
+
+  function getCurrentOrderPlayers() public view returns (address payable[] memory players) {
+    players = orderToPlayers[currentOrder];
+  }
+
+  function getPlayersByOrder(uint256 order) public view returns (address payable[] memory players) {
+    players = orderToPlayers[order];
+  }
+
+  function getRecentWinner() public view returns (address recentWinner) {
+    if (currentOrder <= 0) {
+      return address(0);
+    }
+    uint256 previousOrder = currentOrder - 1;
+    address payable[] memory previousOrderPlayers = orderToPlayers[previousOrder];
+    uint256 previousWinnerIdx = orderToWinnerIdx[previousOrder];
+    recentWinner = previousOrderPlayers[previousWinnerIdx];
+  }
+
+  function getWinnerByOrder(uint256 order) public view returns (address winner) {
+    if (currentOrder <= 0) {
+      return address(0);
+    }
+    address payable[] memory orderPlayers = orderToPlayers[order];
+    uint256 orderWinnerIdx = orderToWinnerIdx[order];
+    winner = orderPlayers[orderWinnerIdx];
+  }
+
+  function getNumWords() public pure returns (uint32) {
+    return NUM_WORDS;
+  }
+
+  function getRequestConfirmation() public pure returns (uint16) {
+    return REQUEST_COMFIRMATIONS;
+  }
 }
