@@ -10,6 +10,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   error Raffle__RaffleNotOpen();
   error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 playerNums, uint256 raffleState);
   error Raffle__TransferFailed();
+  error Raffle__CurrentOrderNoWinner(uint256 currentOrder);
 
   enum RaffleState {
     OPEN,
@@ -85,6 +86,8 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
       );
     }
 
+    raffleState = RaffleState.CALCULATING;
+
     uint256 requestId = s_vrfCoordinator.requestRandomWords(
       VRFV2PlusClient.RandomWordsRequest({
         keyHash: i_gasLane,
@@ -107,6 +110,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
     emit WinnerPicked(currentOrder, winner);
     currentOrder += 1;
+    raffleState = RaffleState.OPEN;
 
     (bool success, ) = payable(winner).call{value: address(this).balance}('');
     if (!success) {
@@ -144,7 +148,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
   function getRecentWinner() public view returns (address recentWinner) {
     if (currentOrder <= 0) {
-      return address(0);
+      revert Raffle__CurrentOrderNoWinner(currentOrder);
     }
     uint256 previousOrder = currentOrder - 1;
     address payable[] memory previousOrderPlayers = orderToPlayers[previousOrder];
@@ -153,8 +157,8 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   }
 
   function getWinnerByOrder(uint256 order) public view returns (address winner) {
-    if (currentOrder <= 0) {
-      return address(0);
+    if (currentOrder <= 0 || (order > currentOrder - 1)) {
+      revert Raffle__CurrentOrderNoWinner(currentOrder);
     }
     address payable[] memory orderPlayers = orderToPlayers[order];
     uint256 orderWinnerIdx = orderToWinnerIdx[order];
