@@ -458,6 +458,304 @@ export const lockAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MyRaffle
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const myRaffleAbi = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: '_subscriptionId', internalType: 'uint256', type: 'uint256' },
+      { name: '_gasLane', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_callbackGasLimit', internalType: 'uint32', type: 'uint32' },
+      { name: '_interval', internalType: 'uint256', type: 'uint256' },
+      { name: '_entranceFee', internalType: 'uint256', type: 'uint256' },
+      { name: '_vrfCoordinator', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'have', internalType: 'address', type: 'address' },
+      { name: 'want', internalType: 'address', type: 'address' },
+    ],
+    name: 'OnlyCoordinatorCanFulfill',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'have', internalType: 'address', type: 'address' },
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'coordinator', internalType: 'address', type: 'address' },
+    ],
+    name: 'OnlyOwnerOrCoordinator',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'currentOrder', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'Raffle__CurrentOrderNoWinner',
+  },
+  { type: 'error', inputs: [], name: 'Raffle__RaffleNotOpen' },
+  { type: 'error', inputs: [], name: 'Raffle__SpendMoreToEnterRaffle' },
+  { type: 'error', inputs: [], name: 'Raffle__TransferFailed' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'currentBalance', internalType: 'uint256', type: 'uint256' },
+      { name: 'playerNums', internalType: 'uint256', type: 'uint256' },
+      { name: 'raffleState', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'Raffle__UpkeepNotNeeded',
+  },
+  { type: 'error', inputs: [], name: 'ZeroAddress' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'vrfCoordinator',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'CoordinatorSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'currentOrder',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'player',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'EnterRaffle',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+    ],
+    name: 'OwnershipTransferRequested',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'requestId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'RequestedRaffleWinner',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'currentOrder',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'player',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'WinnerPicked',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'acceptOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+    name: 'checkUpkeep',
+    outputs: [
+      { name: 'upkeepNeeded', internalType: 'bool', type: 'bool' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'enterRaffle',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getCurrentOrder',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getCurrentOrderPlayers',
+    outputs: [
+      { name: 'players', internalType: 'address payable[]', type: 'address[]' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getEntranceFee',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getInterval',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getLastTimeStamp',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getNumWords',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'order', internalType: 'uint256', type: 'uint256' }],
+    name: 'getPlayersByOrder',
+    outputs: [
+      { name: 'players', internalType: 'address payable[]', type: 'address[]' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getRaffleState',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getRecentWinner',
+    outputs: [
+      { name: 'recentWinner', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getRequestConfirmation',
+    outputs: [{ name: '', internalType: 'uint16', type: 'uint16' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'order', internalType: 'uint256', type: 'uint256' }],
+    name: 'getWinnerByOrder',
+    outputs: [{ name: 'winner', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+    name: 'performUpkeep',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'requestId', internalType: 'uint256', type: 'uint256' },
+      { name: 'randomWords', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'rawFulfillRandomWords',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 's_vrfCoordinator',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract IVRFCoordinatorV2Plus',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_vrfCoordinator', internalType: 'address', type: 'address' },
+    ],
+    name: 'setCoordinator',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'to', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Raffle
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
