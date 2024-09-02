@@ -1,11 +1,11 @@
 'use client'
 
 import { useAccount, useBalance } from 'wagmi'
+import { formatEther } from 'viem'
 
 export default function ConnectButton() {
   const { address, chainId } = useAccount()
   const { data: balance } = useBalance({ address, chainId })
-  console.log('balance', balance)
 
   return (
     <div>
@@ -24,7 +24,7 @@ export default function ConnectButton() {
       <div>
         {balance ? (
           <div>
-            Balance: {balance.value.toString()}&nbsp;{balance.symbol}
+            Balance: {formatEther(balance.value)}&nbsp;{balance.symbol}
           </div>
         ) : (
           <div>000</div>
