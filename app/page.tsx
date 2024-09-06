@@ -9,7 +9,7 @@ export default function Home() {
       <ConnectButton />
       {/* <PopUpLocalWallet /> */}
       {/* <TestReadContract /> */}
-      <MyRaffle />
+      {/* <MyRaffle /> */}
     </>
   )
 }
