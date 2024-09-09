@@ -49,6 +49,8 @@ export default function RootLayout({
   const initialState = cookieToInitialState(config, headers().get('cookie'))
   return (
     <html lang="en" className={`${inter.className} h-full scroll-smooth`} suppressHydrationWarning>
+      <link rel="apple-touch-icon" href="./favicon-96.png" type="image/png" sizes="96x96" />
+      <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
       <meta name="msapplication-TileColor" content="#000000" />
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
