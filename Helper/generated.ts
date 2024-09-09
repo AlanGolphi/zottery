@@ -498,8 +498,8 @@ export const myRaffleAbi = [
     ],
     name: 'Raffle__CurrentOrderNoWinner',
   },
+  { type: 'error', inputs: [], name: 'Raffle__NotTheExactAmount' },
   { type: 'error', inputs: [], name: 'Raffle__RaffleNotOpen' },
-  { type: 'error', inputs: [], name: 'Raffle__SpendMoreToEnterRaffle' },
   { type: 'error', inputs: [], name: 'Raffle__TransferFailed' },
   {
     type: 'error',
@@ -539,6 +539,12 @@ export const myRaffleAbi = [
         internalType: 'address',
         type: 'address',
         indexed: true,
+      },
+      {
+        name: 'betsNum',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
       },
     ],
     name: 'EnterRaffle',
@@ -609,13 +615,6 @@ export const myRaffleAbi = [
       { name: '', internalType: 'bytes', type: 'bytes' },
     ],
     stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'enterRaffle',
-    outputs: [],
-    stateMutability: 'payable',
   },
   {
     type: 'function',
@@ -699,6 +698,20 @@ export const myRaffleAbi = [
     name: 'getWinnerByOrder',
     outputs: [{ name: 'winner', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'betsNum', internalType: 'uint256', type: 'uint256' }],
+    name: 'multiBets',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'oneOffBet',
+    outputs: [],
+    stateMutability: 'payable',
   },
   {
     type: 'function',

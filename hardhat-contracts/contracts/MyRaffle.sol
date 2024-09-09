@@ -6,7 +6,7 @@ import {VRFV2PlusClient} from '@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 import {AutomationCompatibleInterface} from '@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol';
 
 contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
-  error Raffle__SpendMoreToEnterRaffle();
+  error Raffle__NotTheExactAmount();
   error Raffle__RaffleNotOpen();
   error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 playerNums, uint256 raffleState);
   error Raffle__TransferFailed();
@@ -32,7 +32,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   mapping(uint256 => uint256) private orderToWinnerIdx;
   mapping(uint256 => address payable[]) private orderToPlayers;
 
-  event EnterRaffle(uint256 indexed currentOrder, address indexed player);
+  event EnterRaffle(uint256 indexed currentOrder, address indexed player, uint256 betsNum);
   event RequestedRaffleWinner(uint256 indexed requestId);
   event WinnerPicked(uint256 indexed currentOrder, address indexed player);
 
@@ -54,16 +54,29 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     raffleState = RaffleState.OPEN;
   }
 
-  function enterRaffle() public payable {
-    if (msg.value < i_entranceFee) {
-      revert Raffle__SpendMoreToEnterRaffle();
+  function oneOffBet() external payable {
+    if (msg.value != i_entranceFee) {
+      revert Raffle__NotTheExactAmount();
     }
     if (raffleState != RaffleState.OPEN) {
       revert Raffle__RaffleNotOpen();
     }
 
     orderToPlayers[currentOrder].push(payable(msg.sender));
-    emit EnterRaffle(currentOrder, msg.sender);
+    emit EnterRaffle(currentOrder, msg.sender, 1);
+  }
+
+  function multiBets(uint256 betsNum) external payable {
+    if (msg.value != i_entranceFee * betsNum) {
+      revert Raffle__NotTheExactAmount();
+    }
+    if (raffleState != RaffleState.OPEN) {
+      revert Raffle__RaffleNotOpen();
+    }
+    for (uint256 i; i < betsNum; i++) {
+      orderToPlayers[currentOrder].push(payable(msg.sender));
+    }
+    emit EnterRaffle(currentOrder, msg.sender, betsNum);
   }
 
   function checkUpkeep(bytes memory) public view returns (bool upkeepNeeded, bytes memory) {
