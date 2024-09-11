@@ -1,15 +1,8 @@
-import ConnectButton from '@/components/ConnectButton'
-import PopUpLocalWallet from '@/components/PopUpLocalWallet'
-import { TestReadContract } from '@/components/TestReadContract'
-import MyRaffle from '@/components/MyRaffle'
+'use client'
+
+import { myRaffleAbi } from '@/Helper/generated'
+import { useReadContracts } from 'wagmi'
 
 export default function Home() {
-  return (
-    <>
-      {/* <ConnectButton /> */}
-      {/* <PopUpLocalWallet /> */}
-      {/* <TestReadContract /> */}
-      {/* <MyRaffle /> */}
-    </>
-  )
+  return <></>
 }

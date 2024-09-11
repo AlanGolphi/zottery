@@ -63,7 +63,7 @@ export default function MyRaffle() {
     writeContract({
       abi: myRaffleAbi,
       address: '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9',
-      functionName: 'enterRaffle',
+      functionName: 'oneOffBet',
       value: parseEther('0.001'),
     })
   }
