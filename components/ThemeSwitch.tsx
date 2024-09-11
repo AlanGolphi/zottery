@@ -48,7 +48,7 @@ const ThemeSwitch = () => {
   if (!mounted) return <Blank />
 
   return (
-    <div className="mr-5 flex items-center">
+    <div className="flex items-center">
       <button
         aria-label="Toggle Dark Mode"
         type="button"

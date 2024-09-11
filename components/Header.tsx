@@ -2,6 +2,7 @@ import siteMetaData from '@/data/siteMetaData'
 import Link from './Link'
 import ThemeSwitch from './ThemeSwitch'
 import { Press_Start_2P } from 'next/font/google'
+import ConnectButton from './ConnectButton'
 
 const pressStart2P = Press_Start_2P({
   weight: '400',
@@ -20,8 +21,9 @@ const Header = () => {
           {siteMetaData.title as string}
         </div>
       </Link>
-      <div className="flex items-center justify-end space-x-4 leading-5 sm:space-x-6">
+      <div className="flex items-center justify-end space-x-2 leading-5">
         <ThemeSwitch />
+        <ConnectButton />
       </div>
     </header>
   )

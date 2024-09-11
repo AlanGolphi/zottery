@@ -6,7 +6,7 @@ import MyRaffle from '@/components/MyRaffle'
 export default function Home() {
   return (
     <>
-      <ConnectButton />
+      {/* <ConnectButton /> */}
       {/* <PopUpLocalWallet /> */}
       {/* <TestReadContract /> */}
       {/* <MyRaffle /> */}
