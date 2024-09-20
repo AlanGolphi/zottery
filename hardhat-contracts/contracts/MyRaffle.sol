@@ -50,7 +50,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     i_interval = _interval;
     i_entranceFee = _entranceFee;
     lastTimeStamp = block.timestamp;
-    currentOrder = 0;
+    currentOrder = 1;
     raffleState = RaffleState.OPEN;
   }
 
