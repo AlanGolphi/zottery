@@ -91,7 +91,6 @@ export function DashBoard() {
               dataKey="visitors"
               nameKey="browser"
               innerRadius={60}
-              strokeWidth={5}
               activeIndex={0}
               activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
                 <Sector {...props} outerRadius={outerRadius + 10} />
@@ -131,7 +130,10 @@ export function DashBoard() {
         </ChartContainer>
         <div className="flex w-full flex-col items-center justify-center space-y-2 sm:w-1/2">
           <div
-            className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-solid border-gray-400 p-3"
+            className={cn(
+              'group flex w-full cursor-pointer items-center justify-between rounded-xl border border-solid border-gray-400 p-3 hover:border-blue-500',
+              { 'border-blue-500': betType === BetType.OneOffBet },
+            )}
             onClick={(e) => {
               e.stopPropagation()
               setBetType(BetType.OneOffBet)
@@ -141,10 +143,10 @@ export function DashBoard() {
               <div className="text-sm text-gray-400">One-Off Bet</div>
               <div
                 className={cn(
-                  'text-lg font-bold',
+                  'bg-clip-text text-lg font-bold group-hover:bg-gradient-to-r group-hover:from-cyan-500 group-hover:to-blue-500 group-hover:text-transparent',
                   `${
                     betType === BetType.OneOffBet
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent'
                       : 'text-gray-500 dark:text-gray-400'
                   }`,
                 )}
@@ -153,11 +155,17 @@ export function DashBoard() {
               </div>
             </div>
             <CircleDollarSign
-              className={cn('h-8 w-8', { 'text-blue-500': betType === BetType.OneOffBet })}
+              className={cn('h-8 w-8 group-hover:text-blue-500', {
+                'text-blue-500': betType === BetType.OneOffBet,
+                'text-gray-500': betType !== BetType.OneOffBet,
+              })}
             />
           </div>
           <div
-            className="flex w-full cursor-pointer flex-col items-start justify-center space-y-1 rounded-xl border border-solid border-gray-400 p-3"
+            className={cn(
+              'group flex w-full cursor-pointer flex-col items-start justify-center space-y-1 rounded-xl border border-solid border-gray-400 p-3 hover:border-violet-500',
+              { 'border-violet-500': betType === BetType.MultiBets },
+            )}
             onClick={(e) => {
               e.stopPropagation()
               setBetType(BetType.MultiBets)
@@ -168,10 +176,10 @@ export function DashBoard() {
                 <div className="text-sm text-gray-400">Multi Bet</div>
                 <div
                   className={cn(
-                    'text-lg font-bold',
+                    'bg-clip-text text-lg font-bold group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-violet-500 group-hover:text-transparent',
                     `${
                       betType === BetType.MultiBets
-                        ? 'bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent'
+                        ? 'bg-gradient-to-r from-pink-500 to-violet-500 text-transparent'
                         : 'text-gray-500'
                     }`,
                   )}
@@ -180,16 +188,22 @@ export function DashBoard() {
                 </div>
               </div>
               <Coins
-                className={cn('h-8 w-8', { 'text-violet-600': betType === BetType.MultiBets })}
+                className={cn('h-8 w-8 group-hover:text-violet-600', {
+                  'text-violet-600': betType === BetType.MultiBets,
+                  'text-gray-500': betType !== BetType.MultiBets,
+                })}
               />
             </div>
             <Slider
               className="w-full"
-              rangeClassName={
-                betType === BetType.MultiBets
-                  ? 'bg-gradient-to-r from-pink-500 to-violet-500'
-                  : 'text-gray-600'
-              }
+              rangeClassName={cn(
+                'group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-violet-500',
+                `${
+                  betType === BetType.MultiBets
+                    ? 'bg-gradient-to-r from-pink-500 to-violet-500'
+                    : 'bg-gray-500'
+                }`,
+              )}
               min={1}
               max={100}
               value={[betCounts]}

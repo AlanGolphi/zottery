@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function toOrdinal(n: number): string {
+export function toOrdinal(n: number, upper = false, justIndicator = false): string {
   const suffixes = ['th', 'st', 'nd', 'rd']
   const remainder = n % 100
 
@@ -14,5 +14,5 @@ export function toOrdinal(n: number): string {
   }
 
   const suffix = suffixes[remainder % 10] || suffixes[0]
-  return `${n}${suffix}`
+  return justIndicator ? suffix : upper ? `${n}${suffix}`.toUpperCase() : `${n}${suffix}`
 }
