@@ -12,69 +12,126 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 import { cn, toOrdinal } from '@/lib/utils'
-import { BetType } from '@/types/zottery'
+import { BetType, RaffleState } from '@/types/zottery'
 import { useMemo, useState } from 'react'
 import { Button } from './ui/button'
 import { Separator } from './ui/separator'
 import { Slider } from './ui/slider'
-
-const chartData = [
-  { browser: 'chrome', visitors: 275034.35, fill: 'var(--color-chrome)' },
-  { browser: 'safari', visitors: 200000.35, fill: 'var(--color-safari)' },
-  { browser: 'firefox', visitors: 187000.35, fill: 'var(--color-firefox)' },
-  { browser: 'edge', visitors: 10000.35, fill: 'var(--color-edge)' },
-  { browser: 'other', visitors: 90000.35, fill: 'var(--color-other)' },
-]
-
-const chartConfig = {
-  chrome: {
-    label: 'Chrome',
-    color: 'hsl(var(--chart-1))',
-  },
-  safari: {
-    label: 'Safari',
-    color: 'hsl(var(--chart-2))',
-  },
-  firefox: {
-    label: 'Firefox',
-    color: 'hsl(var(--chart-3))',
-  },
-  edge: {
-    label: 'Edge',
-    color: 'hsl(var(--chart-4))',
-  },
-  other: {
-    label: 'Other',
-    color: 'hsl(var(--chart-5))',
-  },
-} satisfies ChartConfig
+import { useMyRaffleBasicInfo } from '@/Hooks/useMyRaffleBasicInfo'
+import { formatEther } from 'viem'
+import { CountDown } from './CountDown'
+import { useAccount } from 'wagmi'
+import ConnectButton from './ConnectButton'
 
 export function DashBoard() {
-  const ENTRANCE_FEE = 0.02
+  const {
+    inforReady,
+    entranceFee,
+    currentOrder,
+    currentOrderPlayers,
+    interval,
+    lastTimeStamp,
+    raffleState,
+    recentWinner,
+  } = useMyRaffleBasicInfo()
+  console.log({
+    inforReady,
+    entranceFee,
+    currentOrder,
+    currentOrderPlayers,
+    interval,
+    lastTimeStamp,
+    raffleState,
+    recentWinner,
+  })
+
+  const { address: userAddress } = useAccount()
+
+  const chartData = useMemo(() => {
+    if (!currentOrderPlayers || currentOrderPlayers.length === 0) {
+      return [{ address: 'NO_PLAYER', betAmount: 0.000000001 }]
+    }
+    const formatedChartData: { address: string; betAmount: number; fill: string }[] = []
+    currentOrderPlayers.forEach((player) => {
+      const playerData = formatedChartData.find((item) => item.address === player)
+      if (playerData) {
+        playerData.betAmount += 0.02
+      } else {
+        formatedChartData.push({
+          address: player,
+          betAmount: 0.02,
+          fill: `var(--color-${player.slice(0, 6)})`,
+        })
+      }
+    })
+    return formatedChartData
+  }, [currentOrderPlayers])
+
+  const chartConfig = useMemo(() => {
+    const baseConfig: Record<string, { label: string; color: string }> = {}
+    if (!currentOrderPlayers || currentOrderPlayers.length === 0) {
+      return baseConfig
+    }
+
+    chartData.forEach((item, idx) => {
+      const sliceAddress = item.address.slice(0, 6)
+      baseConfig[sliceAddress] = {
+        label: sliceAddress,
+        color: `hsl(var(--chart-${idx + 1}))`,
+      }
+    })
+
+    return baseConfig
+  }, [currentOrderPlayers, chartData])
+
+  const activeIndex = useMemo(() => {
+    const userIndex = chartData.findIndex((it) => it.address === userAddress)
+    if (!userAddress || userIndex === -1) {
+      return undefined
+    }
+    return userIndex
+  }, [chartData, userAddress])
+
+  const ENTRANCE_FEE = inforReady ? (entranceFee ? Number(formatEther(entranceFee)) : 0) : 0
   const [betType, setBetType] = useState<BetType>(BetType.MultiBets)
   const [betCounts, setBetCounts] = useState(10)
-  const totalVisitors = useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+  const totalBetAmount = useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.betAmount, 0)
+  }, [chartData])
 
   const multiBetCost = useMemo(
     () => (betCounts * (ENTRANCE_FEE * 100)) / 100,
     [ENTRANCE_FEE, betCounts],
   )
 
+  const hasPlayers = useMemo(() => {
+    return currentOrderPlayers && currentOrderPlayers.length > 0
+  }, [currentOrderPlayers])
+
   return (
-    <Card className="flex flex-col">
+    <Card className="relative flex flex-col overflow-hidden">
+      {hasPlayers && <CountDown lastTimeStamp={lastTimeStamp} interval={interval} />}
+
       <CardHeader className="items-center pb-0">
-        <CardTitle>NO. {toOrdinal(1)}</CardTitle>
+        <CardTitle>{currentOrder ? `NO. ${toOrdinal(currentOrder)}` : '--'}</CardTitle>
         <div className="flex flex-nowrap items-center">
           <div>
-            Entrance: <span className="font-bold">{ENTRANCE_FEE}ETH</span>
+            Entrance Fee:{' '}
+            <span
+              className="cursor-pointer font-bold hover:underline"
+              onClick={(e) => {
+                e.stopPropagation()
+                setBetType(BetType.OneOffBet)
+              }}
+            >
+              {ENTRANCE_FEE}ETH
+            </span>
           </div>
           <Separator className="mx-1.5 h-3" orientation="vertical" />
           <div>
-            Pool:&nbsp;
+            Jackpot:&nbsp;
             <span className="bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text font-bold text-transparent">
-              0.88ETH
+              {currentOrderPlayers ? currentOrderPlayers.length * ENTRANCE_FEE : 0}ETH
             </span>
           </div>
         </div>
@@ -85,19 +142,40 @@ export function DashBoard() {
           className="mx-auto aspect-square max-h-[250px] w-full sm:w-1/2"
         >
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            {hasPlayers && (
+              <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            )}
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              dataKey="betAmount"
+              nameKey="address"
               innerRadius={60}
-              activeIndex={0}
+              activeIndex={activeIndex}
               activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
                 <Sector {...props} outerRadius={outerRadius + 10} />
               )}
             >
               <Label
                 content={({ viewBox }) => {
+                  if (!hasPlayers && viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                    return (
+                      <foreignObject
+                        x={viewBox.cx ? viewBox.cx - 80 : 0}
+                        y={viewBox.cy ? viewBox.cy - 20 : 0}
+                        width={160}
+                        height={40}
+                      >
+                        <div
+                          {...({ xmlns: 'http://www.w3.org/1999/xhtml' } as any)}
+                          className="flex h-full w-full items-center justify-center"
+                        >
+                          <span className="bg-gradient-to-r from-pink-600 to-violet-600 bg-clip-text text-xl font-bold italic text-transparent">
+                            Try the first BET!
+                          </span>
+                        </div>
+                      </foreignObject>
+                    )
+                  }
                   if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
                     return (
                       <text
@@ -111,14 +189,14 @@ export function DashBoard() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalBetAmount.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          ETH
                         </tspan>
                       </text>
                     )
@@ -128,7 +206,12 @@ export function DashBoard() {
             </Pie>
           </PieChart>
         </ChartContainer>
-        <div className="flex w-full flex-col items-center justify-center space-y-2 sm:w-1/2">
+        <div className="relative flex w-full flex-col items-center justify-center space-y-2 sm:w-1/2">
+          {!userAddress && (
+            <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-xl backdrop-blur-xl">
+              <ConnectButton />
+            </div>
+          )}
           <div
             className={cn(
               'group flex w-full cursor-pointer items-center justify-between rounded-xl border border-solid border-gray-400 p-3 hover:border-blue-500',
@@ -214,6 +297,7 @@ export function DashBoard() {
             />
           </div>
           <Button
+            disabled={raffleState !== RaffleState.OPEN}
             className={cn(
               'w-full rounded-full bg-gradient-to-r hover:opacity-80',
               `${
@@ -223,7 +307,7 @@ export function DashBoard() {
               }`,
             )}
           >
-            Bet
+            {raffleState === RaffleState.OPEN ? 'Bet' : 'Calculating...'}
           </Button>
         </div>
       </CardContent>
