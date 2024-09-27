@@ -1,8 +1,8 @@
 import siteMetaData from '@/data/siteMetaData'
-import Link from './Link'
-import ThemeSwitch from './ThemeSwitch'
 import { Press_Start_2P } from 'next/font/google'
 import ConnectButton from './ConnectButton'
+import Link from './Link'
+import ThemeSwitch from './ThemeSwitch'
 
 const pressStart2P = Press_Start_2P({
   weight: '400',

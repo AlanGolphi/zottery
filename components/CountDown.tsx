@@ -1,8 +1,22 @@
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 
-export const CountDown = ({ lastTimeStamp, interval }: CountDownProps) => {
-  const targetTime = (lastTimeStamp || 0) + (interval || 0)
+/**
+ * 
+ * @param blockLastTimeStamp 
+ * @param interval
+ * @description use blockLastTimeStamp to calculate the exact time of the game, then add interval to get the target time
+ * @returns
+ */
+export const CountDown = ({ blockLastTimeStamp, interval }: CountDownProps) => {
+  const ONE_DAY_SECONDS = 24 * 60 * 60
+  // chainlink automation will call the contract at 12:00 am UTC time
+  // it may miss if there's no players
+  // so we need to calculate the exact time of the game
+  const currentTimeStamp = Math.floor(Date.now() / 1000)
+  const gapDay = Math.floor((currentTimeStamp - (blockLastTimeStamp || 0)) / ONE_DAY_SECONDS)
+  const exactlastTimeStamp = (blockLastTimeStamp || 0) + gapDay * ONE_DAY_SECONDS
+  const targetTime = exactlastTimeStamp + (interval || 0)
   const currentTime = Math.floor(Date.now() / 1000)
 
   const [countDown, setCountDown] = useState(targetTime - currentTime)
@@ -22,7 +36,7 @@ export const CountDown = ({ lastTimeStamp, interval }: CountDownProps) => {
     return () => clearInterval(timer)
   }, [countDown])
 
-  if (!lastTimeStamp || !interval) return null
+  if (!blockLastTimeStamp || !interval) return null
 
   return (
     <div
@@ -40,6 +54,6 @@ export const CountDown = ({ lastTimeStamp, interval }: CountDownProps) => {
 }
 
 type CountDownProps = {
-  lastTimeStamp?: number
+  blockLastTimeStamp?: number
   interval?: number
 }

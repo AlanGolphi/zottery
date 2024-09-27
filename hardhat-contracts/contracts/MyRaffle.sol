@@ -160,7 +160,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   }
 
   function getRecentWinner() public view returns (address recentWinner) {
-    if (currentOrder <= 0) {
+    if (currentOrder <= 1) {
       revert Raffle__CurrentOrderNoWinner(currentOrder);
     }
     uint256 previousOrder = currentOrder - 1;
@@ -170,7 +170,7 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   }
 
   function getWinnerByOrder(uint256 order) public view returns (address winner) {
-    if (currentOrder <= 0 || (order > currentOrder - 1)) {
+    if (currentOrder <= 1 || (order > currentOrder - 1)) {
       revert Raffle__CurrentOrderNoWinner(currentOrder);
     }
     address payable[] memory orderPlayers = orderToPlayers[order];

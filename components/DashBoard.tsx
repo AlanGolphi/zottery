@@ -5,47 +5,50 @@ import { Label, Pie, PieChart, Sector } from 'recharts'
 import { PieSectorDataItem } from 'recharts/types/polar/Pie'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { useMultiBets } from '@/Hooks/useMultiBets'
+import { useMyRaffleBasicInfo } from '@/Hooks/useMyRaffleBasicInfo'
+import { useOneOffBet } from '@/Hooks/useOneOffBet'
 import { cn, toOrdinal } from '@/lib/utils'
 import { BetType, RaffleState } from '@/types/zottery'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { toast } from 'sonner'
+import { formatEther, parseEther } from 'viem'
+import { useAccount } from 'wagmi'
+import ConnectButton from './ConnectButton'
+import { CountDown } from './CountDown'
 import { Button } from './ui/button'
 import { Separator } from './ui/separator'
 import { Slider } from './ui/slider'
-import { useMyRaffleBasicInfo } from '@/Hooks/useMyRaffleBasicInfo'
-import { formatEther } from 'viem'
-import { CountDown } from './CountDown'
-import { useAccount } from 'wagmi'
-import ConnectButton from './ConnectButton'
 
 export function DashBoard() {
   const {
-    inforReady,
+    infoReady,
     entranceFee,
     currentOrder,
     currentOrderPlayers,
     interval,
-    lastTimeStamp,
+    blockLastTimeStamp,
     raffleState,
     recentWinner,
   } = useMyRaffleBasicInfo()
   console.log({
-    inforReady,
+    infoReady,
     entranceFee,
     currentOrder,
     currentOrderPlayers,
     interval,
-    lastTimeStamp,
+    blockLastTimeStamp,
     raffleState,
     recentWinner,
   })
 
   const { address: userAddress } = useAccount()
+  const { oneOffBet, isPending: oneOffBetPending } = useOneOffBet()
+  const { multiBets, isPending: multiBetsPending } = useMultiBets()
+
+  const raffleNotOpen = raffleState !== RaffleState.OPEN
+  const betPending = oneOffBetPending || multiBetsPending
 
   const chartData = useMemo(() => {
     if (!currentOrderPlayers || currentOrderPlayers.length === 0) {
@@ -92,7 +95,7 @@ export function DashBoard() {
     return userIndex
   }, [chartData, userAddress])
 
-  const ENTRANCE_FEE = inforReady ? (entranceFee ? Number(formatEther(entranceFee)) : 0) : 0
+  const ENTRANCE_FEE = infoReady ? (entranceFee ? Number(formatEther(entranceFee)) : 0) : 0
   const [betType, setBetType] = useState<BetType>(BetType.MultiBets)
   const [betCounts, setBetCounts] = useState(10)
   const totalBetAmount = useMemo(() => {
@@ -108,9 +111,47 @@ export function DashBoard() {
     return currentOrderPlayers && currentOrderPlayers.length > 0
   }, [currentOrderPlayers])
 
+  const handleBet = useCallback(() => {
+    if (betPending) {
+      return
+    }
+    if (raffleNotOpen) {
+      toast.info('Current raffle is calculating, try next one.')
+      return
+    }
+    if (!userAddress) {
+      toast(
+        <div className="flex w-full items-center justify-between">
+          <p>Please connect your wallet first.</p>
+          <ConnectButton />
+        </div>,
+      )
+      return
+    }
+    if (!entranceFee) {
+      toast.error('Some error occurred, try again later.')
+      return
+    }
+    if (betType === BetType.OneOffBet) {
+      oneOffBet(entranceFee)
+    } else {
+      multiBets(parseEther(multiBetCost.toString()), BigInt(betCounts))
+    }
+  }, [
+    raffleNotOpen,
+    userAddress,
+    betType,
+    betCounts,
+    entranceFee,
+    multiBetCost,
+    betPending,
+    oneOffBet,
+    multiBets,
+  ])
+
   return (
     <Card className="relative flex flex-col overflow-hidden">
-      {hasPlayers && <CountDown lastTimeStamp={lastTimeStamp} interval={interval} />}
+      {hasPlayers && <CountDown blockLastTimeStamp={blockLastTimeStamp} interval={interval} />}
 
       <CardHeader className="items-center pb-0">
         <CardTitle>{currentOrder ? `NO. ${toOrdinal(currentOrder)}` : '--'}</CardTitle>
@@ -219,6 +260,7 @@ export function DashBoard() {
             )}
             onClick={(e) => {
               e.stopPropagation()
+              if (betPending) return
               setBetType(BetType.OneOffBet)
             }}
           >
@@ -251,6 +293,7 @@ export function DashBoard() {
             )}
             onClick={(e) => {
               e.stopPropagation()
+              if (betPending) return
               setBetType(BetType.MultiBets)
             }}
           >
@@ -297,7 +340,8 @@ export function DashBoard() {
             />
           </div>
           <Button
-            disabled={raffleState !== RaffleState.OPEN}
+            disabled={raffleNotOpen || betPending}
+            onClick={handleBet}
             className={cn(
               'w-full rounded-full bg-gradient-to-r hover:opacity-80',
               `${
@@ -305,9 +349,12 @@ export function DashBoard() {
                   ? 'from-cyan-500 to-blue-500'
                   : 'from-pink-500 to-violet-500'
               }`,
+              {
+                'animate-pulse': oneOffBetPending,
+              },
             )}
           >
-            {raffleState === RaffleState.OPEN ? 'Bet' : 'Calculating...'}
+            {infoReady ? (raffleState === RaffleState.OPEN ? 'Bet' : 'Calculating...') : '...'}
           </Button>
         </div>
       </CardContent>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useReadContracts } from 'wagmi'
 import { basicRaffleContract } from '@/Helper/constants'
+import { useReadContracts } from 'wagmi'
 
 export const useMyRaffleBasicInfo = () => {
   const { data: basicInfo } = useReadContracts({
@@ -39,12 +39,12 @@ export const useMyRaffleBasicInfo = () => {
 
   if (!basicInfo) {
     return {
-      inforReady: false,
+      infoReady: false,
       entranceFee: undefined,
       currentOrder: undefined,
       currentOrderPlayers: undefined,
       interval: undefined,
-      lastTimeStamp: undefined,
+      blockLastTimeStamp: undefined,
       raffleState: undefined,
       recentWinner: undefined,
     }
@@ -54,17 +54,17 @@ export const useMyRaffleBasicInfo = () => {
   const { result: currentOrder } = basicInfo[1]
   const { result: currentOrderPlayers } = basicInfo[2]
   const { result: interval } = basicInfo[3]
-  const { result: lastTimeStamp } = basicInfo[4]
+  const { result: blockLastTimeStamp } = basicInfo[4]
   const { result: raffleState } = basicInfo[5]
   const { result: recentWinner } = basicInfo[6]
 
   return {
-    inforReady: true,
+    infoReady: true,
     entranceFee,
     currentOrder: currentOrder ? Number(currentOrder) : undefined,
     currentOrderPlayers,
     interval: interval ? Number(interval) : undefined,
-    lastTimeStamp: lastTimeStamp ? Number(lastTimeStamp) : undefined,
+    blockLastTimeStamp: blockLastTimeStamp ? Number(blockLastTimeStamp) : undefined,
     raffleState: typeof raffleState === 'bigint' ? Number(raffleState) : undefined,
     recentWinner,
   }

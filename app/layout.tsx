@@ -5,6 +5,7 @@ import siteMetaData from '@/data/siteMetaData'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { headers } from 'next/headers'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 import { cookieToInitialState } from 'wagmi'
@@ -61,6 +62,7 @@ export default function RootLayout({
               <Header />
               <main className="mb-auto">{children}</main>
             </SectionContainer>
+            <Toaster />
           </Web3ModalProvider>
         </ThemeProviders>
       </body>
