@@ -2,8 +2,8 @@ import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 
 /**
- * 
- * @param blockLastTimeStamp 
+ *
+ * @param blockLastTimeStamp
  * @param interval
  * @description use blockLastTimeStamp to calculate the exact time of the game, then add interval to get the target time
  * @returns
@@ -48,7 +48,7 @@ export const CountDown = ({ blockLastTimeStamp, interval }: CountDownProps) => {
         },
       )}
     >
-      next: {formatTime(countDown)}
+      unveil: {formatTime(countDown)}
     </div>
   )
 }

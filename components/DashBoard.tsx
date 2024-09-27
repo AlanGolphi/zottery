@@ -1,7 +1,7 @@
 'use client'
 
 import { CircleDollarSign, Coins, TrendingUp } from 'lucide-react'
-import { Label, Pie, PieChart, Sector } from 'recharts'
+import { Label, LabelList, Pie, PieChart, Sector } from 'recharts'
 import { PieSectorDataItem } from 'recharts/types/polar/Pie'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,16 +32,6 @@ export function DashBoard() {
     raffleState,
     recentWinner,
   } = useMyRaffleBasicInfo()
-  console.log({
-    infoReady,
-    entranceFee,
-    currentOrder,
-    currentOrderPlayers,
-    interval,
-    blockLastTimeStamp,
-    raffleState,
-    recentWinner,
-  })
 
   const { address: userAddress } = useAccount()
   const { oneOffBet, isPending: oneOffBetPending } = useOneOffBet()
@@ -56,12 +46,12 @@ export function DashBoard() {
     }
     const formatedChartData: { address: string; betAmount: number; fill: string }[] = []
     currentOrderPlayers.forEach((player) => {
-      const playerData = formatedChartData.find((item) => item.address === player)
+      const playerData = formatedChartData.find((item) => item.address === player.slice(0, 6))
       if (playerData) {
         playerData.betAmount += 0.02
       } else {
         formatedChartData.push({
-          address: player,
+          address: player.slice(0, 6),
           betAmount: 0.02,
           fill: `var(--color-${player.slice(0, 6)})`,
         })
@@ -77,10 +67,10 @@ export function DashBoard() {
     }
 
     chartData.forEach((item, idx) => {
-      const sliceAddress = item.address.slice(0, 6)
+      const sliceAddress = item.address
       baseConfig[sliceAddress] = {
         label: sliceAddress,
-        color: `hsl(var(--chart-${idx + 1}))`,
+        color: `hsl(var(--chart-${Math.floor((idx * 6) / chartData.length) % 6}))`,
       }
     })
 
@@ -88,7 +78,7 @@ export function DashBoard() {
   }, [currentOrderPlayers, chartData])
 
   const activeIndex = useMemo(() => {
-    const userIndex = chartData.findIndex((it) => it.address === userAddress)
+    const userIndex = chartData.findIndex((it) => it.address === userAddress?.slice(0, 6))
     if (!userAddress || userIndex === -1) {
       return undefined
     }
@@ -151,7 +141,9 @@ export function DashBoard() {
 
   return (
     <Card className="relative flex flex-col overflow-hidden">
-      {hasPlayers && <CountDown blockLastTimeStamp={blockLastTimeStamp} interval={interval} />}
+      {hasPlayers && window && (
+        <CountDown blockLastTimeStamp={blockLastTimeStamp} interval={interval} />
+      )}
 
       <CardHeader className="items-center pb-0">
         <CardTitle>{currentOrder ? `NO. ${toOrdinal(currentOrder)}` : '--'}</CardTitle>
