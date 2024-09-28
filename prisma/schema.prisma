@@ -14,10 +14,10 @@ datasource db {
 }
 
 model Raffle {
-  orderId     String  @unique
+  orderId     Int         @id @unique
   raffleState RaffleState @default(OPEN)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   winner      String?
   players     String[]
 }
