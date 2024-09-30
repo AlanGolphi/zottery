@@ -25,5 +25,6 @@ model Raffle {
 enum RaffleState {
   OPEN
   CALCULATING
+  END
 }
 
