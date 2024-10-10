@@ -20,19 +20,8 @@ type MyRaffleFunctionAbi = Extract<(typeof myRaffleAbi)[number], { type: 'functi
 
 export type FuntionNames = MyRaffleFunctionAbi['name']
 
-export type UpdateRaffleResponseType =
-  | {
-      success: true
-      message: string
-      data: {
-        currentOrder: number
-        latestOrderId: number
-        raffleState: number
-        currentOrderPlayers: string[]
-      }
-    }
-  | {
-      success: false
-      message: string
-      data: null
-    }
+export type UpdateRaffleResponseType = {
+  success: boolean
+  message: string
+  data: any
+}

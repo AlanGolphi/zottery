@@ -88,14 +88,10 @@ export const updateRaffle = async () => {
     })
   }
 
-  return generateResponse(200, {
-    success: true,
-    message: 'Raffle data updated',
-    data: {
-      currentOrder,
-      latestOrderId: dbLatestOrder?.orderId || 1,
-      raffleState,
-      currentOrderPlayers,
-    },
-  })
+  return {
+    currentOrder,
+    latestOrderId: dbLatestOrder?.orderId || 1,
+    raffleState,
+    currentOrderPlayers,
+  }
 }
