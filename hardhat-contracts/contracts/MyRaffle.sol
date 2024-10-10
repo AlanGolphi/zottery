@@ -73,10 +73,11 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     if (raffleState != RaffleState.OPEN) {
       revert Raffle__RaffleNotOpen();
     }
+    address payable sender = payable(msg.sender);
     for (uint256 i; i < betsNum; i++) {
-      orderToPlayers[currentOrder].push(payable(msg.sender));
+      orderToPlayers[currentOrder].push(sender);
     }
-    emit EnterRaffle(currentOrder, msg.sender, betsNum);
+    emit EnterRaffle(currentOrder, sender, betsNum);
   }
 
   function checkUpkeep(bytes memory) public view returns (bool upkeepNeeded, bytes memory) {
@@ -124,8 +125,10 @@ contract MyRaffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     emit WinnerPicked(currentOrder, winner);
     currentOrder += 1;
     raffleState = RaffleState.OPEN;
+    lastTimeStamp = block.timestamp;
 
-    (bool success, ) = payable(winner).call{value: address(this).balance}('');
+    uint256 prizeAmount = address(this).balance;
+    (bool success, ) = winner.call{value: prizeAmount}("");
     if (!success) {
       revert Raffle__TransferFailed();
     }
