@@ -1,5 +1,5 @@
 import { basicRaffleContract } from '@/Helper/constants'
-import { alchemy } from '@/lib/alchemy'
+import { alchemy, withAlchemyErrorHandling } from '@/lib/alchemy'
 import { FuntionNames } from '@/types/zottery'
 import { decodeAbiParameters, encodeFunctionData, getAbiItem } from 'viem'
 
@@ -24,12 +24,12 @@ async function callContract(functionName: FuntionNames, args?: any) {
     args,
   })
 
-  const result = await alchemy.core.call({
-    to: address,
-    data: encodedData,
-  })
-
-  return result
+  return await withAlchemyErrorHandling(() =>
+    alchemy.core.call({
+      to: address,
+      data: encodedData,
+    }),
+  )
 }
 
 export const getCurrentOrder = async () => await callContract('getCurrentOrder')
