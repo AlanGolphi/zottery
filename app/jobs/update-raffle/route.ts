@@ -20,7 +20,7 @@ export async function GET() {
       error instanceof AlchemyCallError ||
       error instanceof RaffleCalculationgError
     ) {
-      generateResponse(500, {
+      generateResponse(501, {
         success: false,
         message: `${error.name}: ${error.message}`,
         data: null,

@@ -13,7 +13,7 @@ interface RaffleItemProps {
 
 export default function RaffleItem({ raffle }: RaffleItemProps) {
   const ENTRANCE_FEE = 0.02
-  const { orderId, raffleState, createdAt, winner, players } = raffle
+  const { orderId, raffleState, winner, players } = raffle
   const ordinal = toOrdinal(orderId)
   const isOpen = raffleState === RaffleState.OPEN
   const [collapsed, setCollapsed] = useState(true)
@@ -36,7 +36,7 @@ export default function RaffleItem({ raffle }: RaffleItemProps) {
   return (
     <div
       className={cn(
-        'relative mb-3 flex max-h-16 w-full select-none flex-col overflow-hidden rounded-xl bg-slate-50 transition-all',
+        'relative mb-3 flex max-h-16 w-full select-none flex-col overflow-visible rounded-xl bg-slate-50 transition-all',
         {
           'bg-green-50': isOpen,
           'max-h-[1000px]': !collapsed,

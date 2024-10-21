@@ -3,7 +3,7 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
 
 import { cookieStorage, createStorage, http } from 'wagmi'
-import { sepolia, hardhat } from 'wagmi/chains'
+import { sepolia } from 'wagmi/chains'
 
 // Your WalletConnect Cloud project ID
 export const projectId = process.env.NEXT_PUBLIC_WEB3_PROJECT_ID || ''
@@ -11,8 +11,8 @@ export const projectId = process.env.NEXT_PUBLIC_WEB3_PROJECT_ID || ''
 // Create a metadata object
 const metadata = {
   name: 'zottery',
-  description: 'AppKit Example',
-  url: 'https://web3modal.com', // origin must match your domain & subdomain
+  description: 'A lottery app in ETH sepolia',
+  url: 'https://zottery.wuds.run',
   icons: ['https://avatars.githubusercontent.com/u/37784886'],
 }
 
@@ -23,7 +23,7 @@ declare module 'wagmi' {
 }
 
 // Create wagmiConfig
-const chains = [sepolia, hardhat] as const
+const chains = [sepolia] as const
 export const config = defaultWagmiConfig({
   chains,
   projectId,
@@ -34,6 +34,5 @@ export const config = defaultWagmiConfig({
   }),
   transports: {
     [sepolia.id]: http(process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_RPC_URL),
-    [hardhat.id]: http('http://127.0.0.1:8545'),
   },
 })
