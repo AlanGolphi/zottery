@@ -36,16 +36,17 @@ export default function RaffleItem({ raffle }: RaffleItemProps) {
   return (
     <div
       className={cn(
-        'relative mb-3 flex max-h-16 w-full select-none flex-col overflow-visible rounded-xl bg-slate-50 transition-all',
+        'relative mb-3 flex max-h-16 w-full select-none flex-col overflow-hidden rounded-xl bg-slate-50 transition-all',
         {
           'bg-green-50': isOpen,
           'max-h-[1000px]': !collapsed,
+          'overflow-visible': isOpen,
         },
       )}
       onClick={() => (isOpen ? router.push('/') : setCollapsed(!collapsed))}
     >
       {isOpen && <span className="absolute right-[-6px] top-[-16px] text-2xl">🔥</span>}
-      <div className="group flex cursor-pointer items-center justify-between p-4">
+      <div className="group flex h-16 cursor-pointer items-center justify-between p-4">
         <div className="flex flex-row items-center justify-center gap-3">
           <div className="text-xl font-bold">{ordinal}</div>
           <div className="text-sm text-gray-500">Jackpot: {curAmount} ETH</div>
@@ -68,15 +69,17 @@ export default function RaffleItem({ raffle }: RaffleItemProps) {
         </div>
       </div>
       {!isOpen && (
-        <div className="flex flex-col gap-2">
+        <div
+          className={cn('flex flex-col gap-2', {
+            '-z-1': collapsed,
+          })}
+        >
           {formatPlayers.map((player, index) => (
             <div
               key={index}
               className="relative flex flex-row items-center justify-start gap-2 pl-7 last:mb-4"
             >
-              {winner === player.address ? (
-                <div className="absolute left-0 text-base">🎉</div>
-              ) : null}
+              {winner === player.address ? <div className="absolute left-0 text-sm">🎉</div> : null}
               <div className="text-sm text-gray-500">{formatAddress(player.address)}</div>
               <div className="text-sm text-gray-500">{player.amount} ETH</div>
             </div>

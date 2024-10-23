@@ -60,6 +60,9 @@ const config: Config = {
           '5': 'hsl(var(--chart-5))',
         },
       },
+      zIndex: {
+        '-1': '-1',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],
