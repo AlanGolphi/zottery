@@ -36,9 +36,9 @@ export default function RaffleItem({ raffle }: RaffleItemProps) {
   return (
     <div
       className={cn(
-        'relative mb-3 flex max-h-16 w-full select-none flex-col overflow-hidden rounded-xl bg-slate-50 transition-all',
+        'relative mb-3 flex max-h-16 w-full select-none flex-col overflow-hidden rounded-xl bg-slate-50 transition-all dark:bg-slate-900',
         {
-          'bg-green-50': isOpen,
+          'bg-green-50 dark:bg-green-900': isOpen,
           'max-h-[1000px]': !collapsed,
           'overflow-visible': isOpen,
         },
@@ -46,16 +46,20 @@ export default function RaffleItem({ raffle }: RaffleItemProps) {
       onClick={() => (isOpen ? router.push('/') : setCollapsed(!collapsed))}
     >
       {isOpen && <span className="absolute right-[-6px] top-[-16px] text-2xl">🔥</span>}
-      <div className="group flex h-16 cursor-pointer items-center justify-between p-4">
+      <div className="group flex cursor-pointer items-center justify-between p-4">
         <div className="flex flex-row items-center justify-center gap-3">
           <div className="text-xl font-bold">{ordinal}</div>
-          <div className="text-sm text-gray-500">Jackpot: {curAmount} ETH</div>
+          <div className="text-sm text-gray-500 dark:text-gray-300">Jackpot: {curAmount} ETH</div>
         </div>
         <div className="flex flex-row items-center justify-end gap-2">
           {isOpen ? (
-            <p className="hidden text-sm text-gray-500 group-hover:block">Click to try it!</p>
+            <p className="hidden text-sm text-gray-500 group-hover:block dark:text-gray-300">
+              Click to try it!
+            </p>
           ) : collapsed ? (
-            <p className="hidden text-sm text-gray-500 group-hover:block">Click to see players</p>
+            <p className="hidden text-sm text-gray-500 group-hover:block dark:text-gray-300">
+              Click to see players
+            </p>
           ) : null}
           {isOpen ? (
             <ArrowRightFromLine className="h-4 w-4" />
@@ -80,8 +84,10 @@ export default function RaffleItem({ raffle }: RaffleItemProps) {
               className="relative flex flex-row items-center justify-start gap-2 pl-7 last:mb-4"
             >
               {winner === player.address ? <div className="absolute left-0 text-sm">🎉</div> : null}
-              <div className="text-sm text-gray-500">{formatAddress(player.address)}</div>
-              <div className="text-sm text-gray-500">{player.amount} ETH</div>
+              <div className="text-sm text-gray-500 dark:text-gray-300">
+                {formatAddress(player.address)}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-300">{player.amount} ETH</div>
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
-import { CircleDollarSign, Coins, TrendingUp } from 'lucide-react'
-import { Label, LabelList, Pie, PieChart, Sector } from 'recharts'
+import { CircleDollarSign, Coins, History } from 'lucide-react'
+import { Label, Pie, PieChart, Sector } from 'recharts'
 import { PieSectorDataItem } from 'recharts/types/polar/Pie'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { useMyRaffleBasicInfo } from '@/Hooks/useMyRaffleBasicInfo'
 import { useOneOffBet } from '@/Hooks/useOneOffBet'
 import { cn, toOrdinal } from '@/lib/utils'
 import { BetType, RaffleState } from '@/types/zottery'
+import Link from 'next/link'
 import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { formatEther, parseEther } from 'viem'
@@ -351,9 +352,11 @@ export function DashBoard() {
         </div>
       </CardContent>
       <CardFooter className="mt-2 flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Choose multi bet to save more gas <TrendingUp className="h-4 w-4" />
-        </div>
+        <Link href="/history">
+          <div className="flex items-center gap-2 font-medium leading-none hover:underline">
+            Check out the history <History className="h-4 w-4" />
+          </div>
+        </Link>
       </CardFooter>
     </Card>
   )
