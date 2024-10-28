@@ -1,6 +1,7 @@
 import { RaffleCalculationgError } from '@/Helper/errors'
 import { AlchemyCallError } from '@/lib/alchemy'
 import { DatabaseError } from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import retry from 'retry'
 import { generateResponse, updateRaffle } from './helpers'
 
@@ -29,6 +30,8 @@ export async function GET() {
       generateResponse(500, { success: false, message: 'unknown error', data: null })
     }
   }
+
+  revalidatePath('/history')
 }
 
 function retryOperation() {
