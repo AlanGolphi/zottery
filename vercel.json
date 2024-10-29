@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/jobs/update-raffle",
+      "schedule": "0 0 */10 * *"
+    }
+  ]
+}
