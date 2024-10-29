@@ -2,6 +2,8 @@ import Header from '@/components/Header'
 import SectionContainer from '@/components/SectionContainer'
 import ThemeProviders from '@/context/theme-providers'
 import siteMetaData from '@/data/siteMetaData'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { headers } from 'next/headers'
@@ -65,6 +67,8 @@ export default function RootLayout({
             <Toaster />
           </Web3ModalProvider>
         </ThemeProviders>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
