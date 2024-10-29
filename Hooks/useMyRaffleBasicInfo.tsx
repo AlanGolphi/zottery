@@ -4,7 +4,7 @@ import { basicRaffleContract } from '@/Helper/constants'
 import { useReadContracts } from 'wagmi'
 
 export const useMyRaffleBasicInfo = () => {
-  const { data: basicInfo } = useReadContracts({
+  const { data: basicInfo, refetch } = useReadContracts({
     contracts: [
       {
         ...basicRaffleContract,
@@ -59,6 +59,7 @@ export const useMyRaffleBasicInfo = () => {
   const { result: recentWinner } = basicInfo[6]
 
   return {
+    refetch,
     infoReady: true,
     entranceFee,
     currentOrder: currentOrder ? Number(currentOrder) : undefined,

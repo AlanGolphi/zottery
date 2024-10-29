@@ -12,7 +12,7 @@ import { useOneOffBet } from '@/Hooks/useOneOffBet'
 import { cn, toOrdinal } from '@/lib/utils'
 import { BetType, RaffleState } from '@/types/zottery'
 import Link from 'next/link'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { formatEther, parseEther } from 'viem'
 import { useAccount } from 'wagmi'
@@ -24,6 +24,7 @@ import { Slider } from './ui/slider'
 
 export function DashBoard() {
   const {
+    refetch,
     infoReady,
     entranceFee,
     currentOrder,
@@ -31,12 +32,11 @@ export function DashBoard() {
     interval,
     blockLastTimeStamp,
     raffleState,
-    recentWinner,
   } = useMyRaffleBasicInfo()
 
   const { address: userAddress } = useAccount()
-  const { oneOffBet, isPending: oneOffBetPending } = useOneOffBet()
-  const { multiBets, isPending: multiBetsPending } = useMultiBets()
+  const { oneOffBet, isPending: oneOffBetPending, isSuccess: oneOffBetSuccess } = useOneOffBet()
+  const { multiBets, isPending: multiBetsPending, isSuccess: multiBetsSuccess } = useMultiBets()
 
   const raffleNotOpen = raffleState !== RaffleState.OPEN
   const betPending = oneOffBetPending || multiBetsPending
@@ -102,7 +102,7 @@ export function DashBoard() {
     return currentOrderPlayers && currentOrderPlayers.length > 0
   }, [currentOrderPlayers])
 
-  const handleBet = useCallback(() => {
+  const handleBet = useCallback(async () => {
     if (betPending) {
       return
     }
@@ -124,9 +124,9 @@ export function DashBoard() {
       return
     }
     if (betType === BetType.OneOffBet) {
-      oneOffBet(entranceFee)
+      await oneOffBet(entranceFee)
     } else {
-      multiBets(parseEther(multiBetCost.toString()), BigInt(betCounts))
+      await multiBets(parseEther(multiBetCost.toString()), BigInt(betCounts))
     }
   }, [
     raffleNotOpen,
@@ -139,6 +139,17 @@ export function DashBoard() {
     oneOffBet,
     multiBets,
   ])
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (oneOffBetSuccess || multiBetsSuccess) {
+      timer = setTimeout(() => {
+        refetch?.()
+        toast.success('Bet success!')
+      }, 2000)
+    }
+    return () => clearTimeout(timer)
+  }, [oneOffBetSuccess, multiBetsSuccess, refetch])
 
   return (
     <Card className="relative flex flex-col overflow-hidden">
