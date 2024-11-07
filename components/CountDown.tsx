@@ -9,13 +9,13 @@ import { useEffect, useState } from 'react'
  * @returns
  */
 export const CountDown = ({ blockLastTimeStamp, interval }: CountDownProps) => {
-  const ONE_DAY_SECONDS = 24 * 60 * 60
+  const TEN_DAY_SECONDS = 24 * 60 * 60 * 10
   // chainlink automation will call the contract at 12:00 am UTC time
   // it may miss if there's no players
   // so we need to calculate the exact time of the game
   const currentTimeStamp = Math.floor(Date.now() / 1000)
-  const gapDay = Math.floor((currentTimeStamp - (blockLastTimeStamp || 0)) / ONE_DAY_SECONDS)
-  const exactlastTimeStamp = (blockLastTimeStamp || 0) + gapDay * ONE_DAY_SECONDS
+  const gapDay = Math.floor((currentTimeStamp - (blockLastTimeStamp || 0)) / TEN_DAY_SECONDS)
+  const exactlastTimeStamp = (blockLastTimeStamp || 0) + gapDay * TEN_DAY_SECONDS
   const targetTime = exactlastTimeStamp + (interval || 0)
   const currentTime = Math.floor(Date.now() / 1000)
 
