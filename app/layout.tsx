@@ -16,8 +16,7 @@ import { config } from '@/config'
 import Web3ModalProvider from '@/context'
 
 export const metadata: Metadata = {
-  //TODO: Add metadataBase
-  metadataBase: undefined,
+  metadataBase: new URL('https://zottery.wuds.run'),
   title: {
     default: siteMetaData.title as string,
     template: `%s | ${siteMetaData.title}`,
