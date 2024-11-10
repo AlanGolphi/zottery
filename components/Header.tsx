@@ -12,7 +12,7 @@ const pressStart2P = Press_Start_2P({
 
 const Header = () => {
   let headerClass =
-    'flex items-center w-full bg-white dark:bg-gray-950 justify-between py-10 sticky top-0 z-50'
+    'flex items-center w-full bg-white dark:bg-gray-950 justify-between py-4 sticky top-0 z-50 sm:py-10'
 
   return (
     <header className={headerClass}>
